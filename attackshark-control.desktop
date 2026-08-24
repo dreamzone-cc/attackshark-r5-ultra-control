@@ -1,9 +1,12 @@
 [Desktop Entry]
 Type=Application
 Name=Attack Shark R5 Ultra Control Center
-Comment=Full Control Center & Battery Monitor for Attack Shark R5 Ultra
-Exec=attackshark-r5-ultra-control
+GenericName=Gaming Mouse Control Center
+Comment=Native Linux Control Center & Battery Monitor for Attack Shark R5 Ultra
+Exec=/home/ggonlinux/.local/bin/attackshark-r5-ultra-control
 Icon=attackshark-battery
 Terminal=false
 Categories=Utility;HardwareSettings;
+StartupNotify=false
 X-KDE-autostart-phase=2
+X-GNOME-Autostart-enabled=true

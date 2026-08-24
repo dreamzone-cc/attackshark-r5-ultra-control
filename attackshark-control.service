@@ -1,13 +1,13 @@
 [Unit]
 Description=Attack Shark R5 Ultra Control Center Daemon (Rust + Slint)
-After=graphical-session.target
+After=graphical-session.target default.target
 PartOf=graphical-session.target
 
 [Service]
-ExecStart=/usr/local/bin/attackshark-r5-ultra-control
+ExecStart=/home/ggonlinux/.local/bin/attackshark-r5-ultra-control
 Restart=always
-RestartSec=2
-Environment=PYTHONUNBUFFERED=1
+RestartSec=3
 
 [Install]
+WantedBy=default.target
 WantedBy=graphical-session.target
