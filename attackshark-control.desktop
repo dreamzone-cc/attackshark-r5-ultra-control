@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Attack Shark R5 Ultra Control Center
+Comment=Full Control Center & Battery Monitor for Attack Shark R5 Ultra
+Exec=attackshark-r5-ultra-control
+Icon=attackshark-battery
+Terminal=false
+Categories=Utility;HardwareSettings;
+X-KDE-autostart-phase=2

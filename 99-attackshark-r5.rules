@@ -1,0 +1,2 @@
+# Attack Shark R5 Ultra 2.4G Wireless Dongle HID access
+KERNEL=="hidraw*", ATTRS{idVendor}=="373e", ATTRS{idProduct}=="0047", MODE="0666", TAG+="uaccess"

@@ -1,0 +1,1017 @@
+import { Slider, Switch, ScrollView } from "std-widgets.slint";
+
+export component AppWindow inherits Window {
+    title: "Attack Shark R5 Ultra Control Center";
+    icon: @image-url("../resources/icon.png");
+    preferred-width: 880px;
+    preferred-height: 640px;
+    min-width: 820px;
+    min-height: 580px;
+    background: #0d0f18;
+    default-font-family: "sans-serif";
+
+    // Global Properties
+    in-out property <int> active-tab: 0; // 0: Dashboard, 1: DPI, 2: Lighting, 3: Buttons, 4: Profiles
+    in-out property <int> battery-level: 100;
+    in-out property <string> battery-text: "100%";
+    in-out property <bool> is-charging: false;
+    in-out property <string> connection-status: "Connected (2.4G)";
+    in-out property <string> firmware-version: "0.0.12.0";
+    in-out property <string> status-banner: "Ready";
+    in-out property <color> status-color: #a6e3a1;
+
+    // DPI & Sensor Properties
+    in-out property <int> active-dpi-stage: 1; // 0..5
+    in-out property <int> dpi-stage-1: 800;
+    in-out property <int> dpi-stage-2: 1600;
+    in-out property <int> dpi-stage-3: 2400;
+    in-out property <int> dpi-stage-4: 3200;
+    in-out property <int> dpi-stage-5: 5000;
+    in-out property <int> dpi-stage-6: 12000;
+    in-out property <int> polling-rate: 1000; // 125, 250, 500, 1000, 2000, 4000, 8000
+    in-out property <int> lod-setting: 0; // 0: 1mm, 1: 2mm
+    in-out property <int> debounce-ms: 4; // 0..30
+    in-out property <bool> motion-sync-enabled: true;
+    in-out property <bool> ripple-control-enabled: false;
+    in-out property <int> sleep-timeout-mins: 5; // 1..30
+
+    // Lighting Properties
+    in-out property <int> lighting-mode: 3; // 0: Off, 1: Static, 2: Breathing, 3: Neon, 4: Wave
+    in-out property <int> lighting-brightness: 80;
+    in-out property <int> lighting-speed: 5;
+    in-out property <int> lighting-color-r: 137;
+    in-out property <int> lighting-color-g: 180;
+    in-out property <int> lighting-color-b: 250;
+
+    // Button Remap Properties
+    in-out property <string> btn-left: "Left Click";
+    in-out property <string> btn-right: "Right Click";
+    in-out property <string> btn-middle: "Middle Click";
+    in-out property <string> btn-forward: "Forward (Button 5)";
+    in-out property <string> btn-back: "Backward (Button 4)";
+    in-out property <string> btn-dpi: "DPI Loop";
+
+    // System Properties
+    in-out property <bool> autostart-enabled: true;
+    in-out property <int> active-profile: 1; // 1..3
+
+    // Callbacks
+    callback refresh-all();
+    callback apply-settings();
+    callback sync-onboard();
+    callback set-active-dpi(int);
+    callback set-polling-rate-value(int);
+    callback set-lod-value(int);
+    callback set-lighting-mode-value(int);
+    callback set-lighting-brightness-value(int);
+    callback set-lighting-speed-value(int);
+    callback set-lighting-color-preset(int, int, int);
+    callback autostart-toggled(bool);
+    callback reset-factory();
+    callback close-clicked();
+    callback quit-clicked();
+
+    // =========================================================================
+    // ROOT LAYOUT: Consumes 100% of Window Width and Height
+    // =========================================================================
+    VerticalLayout {
+        width: 100%;
+        height: 100%;
+        padding: 0px;
+        spacing: 0px;
+
+        // ---------------------------------------------------------------------
+        // 1. TOP HEADER (Fixed 64px)
+        // ---------------------------------------------------------------------
+        Rectangle {
+            height: 64px;
+            background: #131622;
+            border-width: 1px;
+            border-color: #1e2235;
+
+            HorizontalLayout {
+                padding-left: 20px;
+                padding-right: 20px;
+                alignment: space-between;
+
+                // Left: Logo + Branding
+                HorizontalLayout {
+                    spacing: 12px;
+                    alignment: start;
+                    VerticalLayout {
+                        alignment: center;
+                        Image {
+                            source: @image-url("../resources/icon.png");
+                            width: 32px;
+                            height: 32px;
+                        }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        spacing: 2px;
+                        Text {
+                            text: "ATTACK SHARK R5 ULTRA";
+                            font-size: 15px;
+                            font-weight: 800;
+                            color: #cdd6f4;
+                            letter-spacing: 1px;
+                        }
+                        Text {
+                            text: "PAW3395 SENSOR • LINUX CONTROL SUITE";
+                            font-size: 10px;
+                            font-weight: 700;
+                            color: #89b4fa;
+                            letter-spacing: 1px;
+                        }
+                    }
+                }
+
+                // Right: Badges & Window Close
+                HorizontalLayout {
+                    spacing: 12px;
+                    alignment: end;
+
+                    // Battery Badge
+                    VerticalLayout {
+                        alignment: center;
+                        Rectangle {
+                            height: 32px;
+                            border-radius: 16px;
+                            background: #1c2030;
+                            border-width: 1px;
+                            border-color: root.battery-level > 60 ? #a6e3a1 : (root.battery-level > 20 ? #f9e2af : #f38ba8);
+                            HorizontalLayout {
+                                padding-left: 12px;
+                                padding-right: 12px;
+                                spacing: 8px;
+                                alignment: center;
+                                Rectangle {
+                                    width: 8px;
+                                    height: 8px;
+                                    border-radius: 4px;
+                                    background: root.battery-level > 60 ? #a6e3a1 : (root.battery-level > 20 ? #f9e2af : #f38ba8);
+                                    y: (parent.height - self.height) / 2;
+                                }
+                                Text {
+                                    text: (root.is-charging ? "CHARGING " : "BATTERY ") + root.battery-text;
+                                    font-size: 11px;
+                                    font-weight: 800;
+                                    color: #cdd6f4;
+                                    vertical-alignment: center;
+                                }
+                            }
+                        }
+                    }
+
+                    // Connection Badge
+                    VerticalLayout {
+                        alignment: center;
+                        Rectangle {
+                            height: 32px;
+                            border-radius: 16px;
+                            background: #1c2030;
+                            border-width: 1px;
+                            border-color: #2b3045;
+                            HorizontalLayout {
+                                padding-left: 12px;
+                                padding-right: 12px;
+                                spacing: 8px;
+                                alignment: center;
+                                Rectangle {
+                                    width: 8px;
+                                    height: 8px;
+                                    border-radius: 4px;
+                                    background: root.connection-status == "Connected (2.4G)" ? #a6e3a1 : #f38ba8;
+                                    y: (parent.height - self.height) / 2;
+                                }
+                                Text {
+                                    text: root.connection-status;
+                                    font-size: 11px;
+                                    font-weight: 700;
+                                    color: #a6adc8;
+                                    vertical-alignment: center;
+                                }
+                            }
+                        }
+                    }
+
+                    // Close Window Button
+                    VerticalLayout {
+                        alignment: center;
+                        Rectangle {
+                            width: 32px;
+                            height: 32px;
+                            border-radius: 16px;
+                            background: close-touch.has-hover ? #f38ba8 : #1c2030;
+                            border-width: 1px;
+                            border-color: #2b3045;
+                            Text {
+                                text: "X";
+                                font-size: 12px;
+                                font-weight: 800;
+                                color: close-touch.has-hover ? #11111b : #a6adc8;
+                                horizontal-alignment: center;
+                                vertical-alignment: center;
+                                width: 100%;
+                                height: 100%;
+                            }
+                            close-touch := TouchArea {
+                                clicked => { root.close-clicked(); }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // ---------------------------------------------------------------------
+        // 2. MIDDLE VIEWPORT (Sidebar + Content Area) -> STRETCHES VERTICALLY (1)
+        // ---------------------------------------------------------------------
+        HorizontalLayout {
+            vertical-stretch: 1;
+            padding: 0px;
+            spacing: 0px;
+
+            // 2A. Sidebar Navigation (Full Height)
+            Rectangle {
+                width: 220px;
+                background: #10121c;
+                border-width: 1px;
+                border-color: #1a1d2c;
+
+                VerticalLayout {
+                    padding-top: 16px;
+                    padding-left: 12px;
+                    padding-right: 12px;
+                    padding-bottom: 16px;
+                    spacing: 8px;
+
+                    // Tab 0: Dashboard
+                    Rectangle {
+                        height: 44px;
+                        border-radius: 8px;
+                        background: root.active-tab == 0 ? #252a3d : (tab0-touch.has-hover ? #181b28 : transparent);
+                        border-width: 1px;
+                        border-color: root.active-tab == 0 ? #89b4fa : transparent;
+                        HorizontalLayout {
+                            padding-left: 14px;
+                            spacing: 12px;
+                            alignment: start;
+                            Rectangle {
+                                width: 6px;
+                                height: 6px;
+                                border-radius: 3px;
+                                background: root.active-tab == 0 ? #89b4fa : #585b70;
+                                y: (parent.height - self.height) / 2;
+                            }
+                            Text {
+                                text: "Dashboard";
+                                font-size: 13px;
+                                font-weight: root.active-tab == 0 ? 800 : 600;
+                                color: root.active-tab == 0 ? #ffffff : #a6adc8;
+                                vertical-alignment: center;
+                            }
+                        }
+                        tab0-touch := TouchArea { clicked => { root.active-tab = 0; } }
+                    }
+
+                    // Tab 1: DPI & Sensor
+                    Rectangle {
+                        height: 44px;
+                        border-radius: 8px;
+                        background: root.active-tab == 1 ? #252a3d : (tab1-touch.has-hover ? #181b28 : transparent);
+                        border-width: 1px;
+                        border-color: root.active-tab == 1 ? #89b4fa : transparent;
+                        HorizontalLayout {
+                            padding-left: 14px;
+                            spacing: 12px;
+                            alignment: start;
+                            Rectangle {
+                                width: 6px;
+                                height: 6px;
+                                border-radius: 3px;
+                                background: root.active-tab == 1 ? #89b4fa : #585b70;
+                                y: (parent.height - self.height) / 2;
+                            }
+                            Text {
+                                text: "DPI & Sensor";
+                                font-size: 13px;
+                                font-weight: root.active-tab == 1 ? 800 : 600;
+                                color: root.active-tab == 1 ? #ffffff : #a6adc8;
+                                vertical-alignment: center;
+                            }
+                        }
+                        tab1-touch := TouchArea { clicked => { root.active-tab = 1; } }
+                    }
+
+                    // Tab 2: RGB Lighting
+                    Rectangle {
+                        height: 44px;
+                        border-radius: 8px;
+                        background: root.active-tab == 2 ? #252a3d : (tab2-touch.has-hover ? #181b28 : transparent);
+                        border-width: 1px;
+                        border-color: root.active-tab == 2 ? #89b4fa : transparent;
+                        HorizontalLayout {
+                            padding-left: 14px;
+                            spacing: 12px;
+                            alignment: start;
+                            Rectangle {
+                                width: 6px;
+                                height: 6px;
+                                border-radius: 3px;
+                                background: root.active-tab == 2 ? #89b4fa : #585b70;
+                                y: (parent.height - self.height) / 2;
+                            }
+                            Text {
+                                text: "RGB Lighting";
+                                font-size: 13px;
+                                font-weight: root.active-tab == 2 ? 800 : 600;
+                                color: root.active-tab == 2 ? #ffffff : #a6adc8;
+                                vertical-alignment: center;
+                            }
+                        }
+                        tab2-touch := TouchArea { clicked => { root.active-tab = 2; } }
+                    }
+
+                    // Tab 3: Button Remap
+                    Rectangle {
+                        height: 44px;
+                        border-radius: 8px;
+                        background: root.active-tab == 3 ? #252a3d : (tab3-touch.has-hover ? #181b28 : transparent);
+                        border-width: 1px;
+                        border-color: root.active-tab == 3 ? #89b4fa : transparent;
+                        HorizontalLayout {
+                            padding-left: 14px;
+                            spacing: 12px;
+                            alignment: start;
+                            Rectangle {
+                                width: 6px;
+                                height: 6px;
+                                border-radius: 3px;
+                                background: root.active-tab == 3 ? #89b4fa : #585b70;
+                                y: (parent.height - self.height) / 2;
+                            }
+                            Text {
+                                text: "Button Remap";
+                                font-size: 13px;
+                                font-weight: root.active-tab == 3 ? 800 : 600;
+                                color: root.active-tab == 3 ? #ffffff : #a6adc8;
+                                vertical-alignment: center;
+                            }
+                        }
+                        tab3-touch := TouchArea { clicked => { root.active-tab = 3; } }
+                    }
+
+                    // Tab 4: Profiles & Settings
+                    Rectangle {
+                        height: 44px;
+                        border-radius: 8px;
+                        background: root.active-tab == 4 ? #252a3d : (tab4-touch.has-hover ? #181b28 : transparent);
+                        border-width: 1px;
+                        border-color: root.active-tab == 4 ? #89b4fa : transparent;
+                        HorizontalLayout {
+                            padding-left: 14px;
+                            spacing: 12px;
+                            alignment: start;
+                            Rectangle {
+                                width: 6px;
+                                height: 6px;
+                                border-radius: 3px;
+                                background: root.active-tab == 4 ? #89b4fa : #585b70;
+                                y: (parent.height - self.height) / 2;
+                            }
+                            Text {
+                                text: "Profiles & Settings";
+                                font-size: 13px;
+                                font-weight: root.active-tab == 4 ? 800 : 600;
+                                color: root.active-tab == 4 ? #ffffff : #a6adc8;
+                                vertical-alignment: center;
+                            }
+                        }
+                        tab4-touch := TouchArea { clicked => { root.active-tab = 4; } }
+                    }
+
+                    // Push info label to bottom of sidebar
+                    Rectangle { vertical-stretch: 1; }
+
+                    Text {
+                        text: "v" + root.firmware-version + " • Nordic MCU";
+                        font-size: 10px;
+                        font-weight: 600;
+                        color: #585b70;
+                        horizontal-alignment: center;
+                    }
+                }
+            }
+
+            // 2B. Content Area (Stretches fully in width and height)
+            Rectangle {
+                horizontal-stretch: 1;
+                background: #0d0f18;
+
+                // -------------------------------------------------------------
+                // TAB 0: DASHBOARD
+                // -------------------------------------------------------------
+                if root.active-tab == 0: VerticalLayout {
+                    padding: 24px;
+                    spacing: 20px;
+                    alignment: start;
+
+                    // Hero Battery Card
+                    Rectangle {
+                        height: 160px;
+                        border-radius: 12px;
+                        background: #151825;
+                        border-width: 1px;
+                        border-color: #24293e;
+
+                        HorizontalLayout {
+                            padding: 24px;
+                            alignment: space-between;
+
+                            VerticalLayout {
+                                spacing: 8px;
+                                alignment: center;
+                                Text {
+                                    text: "BATTERY LEVEL & STATUS";
+                                    font-size: 11px;
+                                    font-weight: 800;
+                                    color: #89b4fa;
+                                    letter-spacing: 1px;
+                                }
+                                Text {
+                                    text: root.battery-text;
+                                    font-size: 48px;
+                                    font-weight: 900;
+                                    color: root.battery-level > 60 ? #a6e3a1 : (root.battery-level > 20 ? #f9e2af : #f38ba8);
+                                }
+                                Text {
+                                    text: root.is-charging ? "State: Fast Charging (Type-C)" : "State: Discharging (Normal 2.4G)";
+                                    font-size: 12px;
+                                    font-weight: 600;
+                                    color: #a6adc8;
+                                }
+                            }
+
+                            VerticalLayout {
+                                alignment: center;
+                                spacing: 10px;
+                                width: 240px;
+
+                                Text {
+                                    text: "Power Management";
+                                    font-size: 13px;
+                                    font-weight: 700;
+                                    color: #cdd6f4;
+                                }
+                                HorizontalLayout {
+                                    alignment: space-between;
+                                    Text { text: "Auto-Sleep Delay:"; font-size: 11px; color: #a6adc8; vertical-alignment: center; }
+                                    Text { text: root.sleep-timeout-mins + " mins"; font-size: 11px; font-weight: 800; color: #89b4fa; vertical-alignment: center; }
+                                }
+                                Slider {
+                                    minimum: 1;
+                                    maximum: 30;
+                                    value: root.sleep-timeout-mins;
+                                    changed(val) => { root.sleep-timeout-mins = Math.round(val); }
+                                }
+                            }
+                        }
+                    }
+
+                    // Stat Cards Grid
+                    HorizontalLayout {
+                        spacing: 16px;
+
+                        // Stat 1: Active DPI
+                        Rectangle {
+                            height: 100px;
+                            border-radius: 10px;
+                            background: #151825;
+                            border-width: 1px;
+                            border-color: #24293e;
+                            VerticalLayout {
+                                padding: 16px;
+                                alignment: center;
+                                spacing: 4px;
+                                Text { text: "ACTIVE DPI"; font-size: 11px; font-weight: 800; color: #89b4fa; }
+                                Text { text: (root.active-dpi-stage == 0 ? root.dpi-stage-1 : (root.active-dpi-stage == 1 ? root.dpi-stage-2 : (root.active-dpi-stage == 2 ? root.dpi-stage-3 : (root.active-dpi-stage == 3 ? root.dpi-stage-4 : (root.active-dpi-stage == 4 ? root.dpi-stage-5 : root.dpi-stage-6))))) + " DPI"; font-size: 22px; font-weight: 900; color: #ffffff; }
+                                Text { text: "Stage " + (root.active-dpi-stage + 1) + " Active"; font-size: 11px; color: #a6adc8; }
+                            }
+                        }
+
+                        // Stat 2: Polling Rate
+                        Rectangle {
+                            height: 100px;
+                            border-radius: 10px;
+                            background: #151825;
+                            border-width: 1px;
+                            border-color: #24293e;
+                            VerticalLayout {
+                                padding: 16px;
+                                alignment: center;
+                                spacing: 4px;
+                                Text { text: "POLLING RATE"; font-size: 11px; font-weight: 800; color: #a6e3a1; }
+                                Text { text: root.polling-rate + " Hz"; font-size: 22px; font-weight: 900; color: #a6e3a1; }
+                                Text { text: (1000.0 / root.polling-rate) + " ms Latency"; font-size: 11px; color: #a6adc8; }
+                            }
+                        }
+
+                        // Stat 3: Sensor Chip
+                        Rectangle {
+                            height: 100px;
+                            border-radius: 10px;
+                            background: #151825;
+                            border-width: 1px;
+                            border-color: #24293e;
+                            VerticalLayout {
+                                padding: 16px;
+                                alignment: center;
+                                spacing: 4px;
+                                Text { text: "OPTICAL SENSOR"; font-size: 11px; font-weight: 800; color: #cba6f7; }
+                                Text { text: "PAW3395"; font-size: 22px; font-weight: 900; color: #ffffff; }
+                                Text { text: "26,000 DPI / 650 IPS"; font-size: 11px; color: #a6adc8; }
+                            }
+                        }
+                    }
+                }
+
+                // -------------------------------------------------------------
+                // TAB 1: DPI & SENSOR
+                // -------------------------------------------------------------
+                if root.active-tab == 1: VerticalLayout {
+                    padding: 24px;
+                    spacing: 16px;
+                    alignment: start;
+
+                    Text { text: "DPI STAGE SELECTOR (50 – 26,000 DPI)"; font-size: 12px; font-weight: 800; color: #89b4fa; letter-spacing: 1px; }
+
+                    // 6 DPI Stage Cards
+                    HorizontalLayout {
+                        spacing: 10px;
+                        Rectangle {
+                            height: 78px; border-radius: 8px;
+                            background: root.active-dpi-stage == 0 ? #252d47 : #151825;
+                            border-width: 1px; border-color: root.active-dpi-stage == 0 ? #f38ba8 : #24293e;
+                            VerticalLayout {
+                                padding: 10px; alignment: center; spacing: 4px;
+                                Text { text: "STAGE 1"; font-size: 10px; font-weight: 800; color: #f38ba8; horizontal-alignment: center; }
+                                Text { text: root.dpi-stage-1 + ""; font-size: 18px; font-weight: 900; color: #ffffff; horizontal-alignment: center; }
+                            }
+                            TouchArea { clicked => { root.set-active-dpi(0); } }
+                        }
+                        Rectangle {
+                            height: 78px; border-radius: 8px;
+                            background: root.active-dpi-stage == 1 ? #252d47 : #151825;
+                            border-width: 1px; border-color: root.active-dpi-stage == 1 ? #89b4fa : #24293e;
+                            VerticalLayout {
+                                padding: 10px; alignment: center; spacing: 4px;
+                                Text { text: "STAGE 2"; font-size: 10px; font-weight: 800; color: #89b4fa; horizontal-alignment: center; }
+                                Text { text: root.dpi-stage-2 + ""; font-size: 18px; font-weight: 900; color: #ffffff; horizontal-alignment: center; }
+                            }
+                            TouchArea { clicked => { root.set-active-dpi(1); } }
+                        }
+                        Rectangle {
+                            height: 78px; border-radius: 8px;
+                            background: root.active-dpi-stage == 2 ? #252d47 : #151825;
+                            border-width: 1px; border-color: root.active-dpi-stage == 2 ? #a6e3a1 : #24293e;
+                            VerticalLayout {
+                                padding: 10px; alignment: center; spacing: 4px;
+                                Text { text: "STAGE 3"; font-size: 10px; font-weight: 800; color: #a6e3a1; horizontal-alignment: center; }
+                                Text { text: root.dpi-stage-3 + ""; font-size: 18px; font-weight: 900; color: #ffffff; horizontal-alignment: center; }
+                            }
+                            TouchArea { clicked => { root.set-active-dpi(2); } }
+                        }
+                        Rectangle {
+                            height: 78px; border-radius: 8px;
+                            background: root.active-dpi-stage == 3 ? #252d47 : #151825;
+                            border-width: 1px; border-color: root.active-dpi-stage == 3 ? #f9e2af : #24293e;
+                            VerticalLayout {
+                                padding: 10px; alignment: center; spacing: 4px;
+                                Text { text: "STAGE 4"; font-size: 10px; font-weight: 800; color: #f9e2af; horizontal-alignment: center; }
+                                Text { text: root.dpi-stage-4 + ""; font-size: 18px; font-weight: 900; color: #ffffff; horizontal-alignment: center; }
+                            }
+                            TouchArea { clicked => { root.set-active-dpi(3); } }
+                        }
+                        Rectangle {
+                            height: 78px; border-radius: 8px;
+                            background: root.active-dpi-stage == 4 ? #252d47 : #151825;
+                            border-width: 1px; border-color: root.active-dpi-stage == 4 ? #cba6f7 : #24293e;
+                            VerticalLayout {
+                                padding: 10px; alignment: center; spacing: 4px;
+                                Text { text: "STAGE 5"; font-size: 10px; font-weight: 800; color: #cba6f7; horizontal-alignment: center; }
+                                Text { text: root.dpi-stage-5 + ""; font-size: 18px; font-weight: 900; color: #ffffff; horizontal-alignment: center; }
+                            }
+                            TouchArea { clicked => { root.set-active-dpi(4); } }
+                        }
+                        Rectangle {
+                            height: 78px; border-radius: 8px;
+                            background: root.active-dpi-stage == 5 ? #252d47 : #151825;
+                            border-width: 1px; border-color: root.active-dpi-stage == 5 ? #f2cdcd : #24293e;
+                            VerticalLayout {
+                                padding: 10px; alignment: center; spacing: 4px;
+                                Text { text: "STAGE 6"; font-size: 10px; font-weight: 800; color: #f2cdcd; horizontal-alignment: center; }
+                                Text { text: root.dpi-stage-6 + ""; font-size: 18px; font-weight: 900; color: #ffffff; horizontal-alignment: center; }
+                            }
+                            TouchArea { clicked => { root.set-active-dpi(5); } }
+                        }
+                    }
+
+                    Text { text: "POLLING RATE (REPORT FREQUENCY)"; font-size: 12px; font-weight: 800; color: #89b4fa; letter-spacing: 1px; }
+
+                    // Polling Rate Pills
+                    HorizontalLayout {
+                        spacing: 8px;
+                        Rectangle {
+                            height: 38px; border-radius: 6px; background: root.polling-rate == 125 ? #89b4fa : #151825; border-width: 1px; border-color: #24293e;
+                            Text { text: "125 Hz"; color: root.polling-rate == 125 ? #11111b : #cdd6f4; font-weight: 800; horizontal-alignment: center; vertical-alignment: center; width: 100%; height: 100%; }
+                            TouchArea { clicked => { root.set-polling-rate-value(125); } }
+                        }
+                        Rectangle {
+                            height: 38px; border-radius: 6px; background: root.polling-rate == 250 ? #89b4fa : #151825; border-width: 1px; border-color: #24293e;
+                            Text { text: "250 Hz"; color: root.polling-rate == 250 ? #11111b : #cdd6f4; font-weight: 800; horizontal-alignment: center; vertical-alignment: center; width: 100%; height: 100%; }
+                            TouchArea { clicked => { root.set-polling-rate-value(250); } }
+                        }
+                        Rectangle {
+                            height: 38px; border-radius: 6px; background: root.polling-rate == 500 ? #89b4fa : #151825; border-width: 1px; border-color: #24293e;
+                            Text { text: "500 Hz"; color: root.polling-rate == 500 ? #11111b : #cdd6f4; font-weight: 800; horizontal-alignment: center; vertical-alignment: center; width: 100%; height: 100%; }
+                            TouchArea { clicked => { root.set-polling-rate-value(500); } }
+                        }
+                        Rectangle {
+                            height: 38px; border-radius: 6px; background: root.polling-rate == 1000 ? #89b4fa : #151825; border-width: 1px; border-color: #24293e;
+                            Text { text: "1000 Hz"; color: root.polling-rate == 1000 ? #11111b : #cdd6f4; font-weight: 800; horizontal-alignment: center; vertical-alignment: center; width: 100%; height: 100%; }
+                            TouchArea { clicked => { root.set-polling-rate-value(1000); } }
+                        }
+                        Rectangle {
+                            height: 38px; border-radius: 6px; background: root.polling-rate == 2000 ? #89b4fa : #151825; border-width: 1px; border-color: #24293e;
+                            Text { text: "2000 Hz"; color: root.polling-rate == 2000 ? #11111b : #cdd6f4; font-weight: 800; horizontal-alignment: center; vertical-alignment: center; width: 100%; height: 100%; }
+                            TouchArea { clicked => { root.set-polling-rate-value(2000); } }
+                        }
+                        Rectangle {
+                            height: 38px; border-radius: 6px; background: root.polling-rate == 4000 ? #89b4fa : #151825; border-width: 1px; border-color: #24293e;
+                            Text { text: "4000 Hz"; color: root.polling-rate == 4000 ? #11111b : #cdd6f4; font-weight: 800; horizontal-alignment: center; vertical-alignment: center; width: 100%; height: 100%; }
+                            TouchArea { clicked => { root.set-polling-rate-value(4000); } }
+                        }
+                        Rectangle {
+                            height: 38px; border-radius: 6px; background: root.polling-rate == 8000 ? #89b4fa : #151825; border-width: 1px; border-color: #24293e;
+                            Text { text: "8000 Hz"; color: root.polling-rate == 8000 ? #11111b : #cdd6f4; font-weight: 800; horizontal-alignment: center; vertical-alignment: center; width: 100%; height: 100%; }
+                            TouchArea { clicked => { root.set-polling-rate-value(8000); } }
+                        }
+                    }
+
+                    // Sensor LOD & Debounce Controls
+                    HorizontalLayout {
+                        spacing: 16px;
+
+                        // LOD Card
+                        Rectangle {
+                            height: 86px; border-radius: 8px; background: #151825; border-width: 1px; border-color: #24293e;
+                            VerticalLayout {
+                                padding: 12px; spacing: 8px;
+                                Text { text: "Lift-Off Distance (LOD)"; font-size: 12px; font-weight: 700; color: #cdd6f4; }
+                                HorizontalLayout {
+                                    spacing: 10px;
+                                    Rectangle {
+                                        height: 32px; border-radius: 6px; background: root.lod-setting == 0 ? #89b4fa : #1c2030;
+                                        Text { text: "1.0 mm (Low)"; font-size: 11px; font-weight: 800; color: root.lod-setting == 0 ? #11111b : #cdd6f4; horizontal-alignment: center; vertical-alignment: center; width: 100%; height: 100%; }
+                                        TouchArea { clicked => { root.set-lod-value(0); } }
+                                    }
+                                    Rectangle {
+                                        height: 32px; border-radius: 6px; background: root.lod-setting == 1 ? #89b4fa : #1c2030;
+                                        Text { text: "2.0 mm (High)"; font-size: 11px; font-weight: 800; color: root.lod-setting == 1 ? #11111b : #cdd6f4; horizontal-alignment: center; vertical-alignment: center; width: 100%; height: 100%; }
+                                        TouchArea { clicked => { root.set-lod-value(1); } }
+                                    }
+                                }
+                            }
+                        }
+
+                        // Debounce Card
+                        Rectangle {
+                            height: 86px; border-radius: 8px; background: #151825; border-width: 1px; border-color: #24293e;
+                            VerticalLayout {
+                                padding: 12px; spacing: 6px;
+                                HorizontalLayout {
+                                    alignment: space-between;
+                                    Text { text: "Debounce Delay:"; font-size: 12px; font-weight: 700; color: #cdd6f4; vertical-alignment: center; }
+                                    Text { text: root.debounce-ms + " ms"; font-size: 12px; font-weight: 800; color: #89b4fa; vertical-alignment: center; }
+                                }
+                                Slider {
+                                    minimum: 0;
+                                    maximum: 30;
+                                    value: root.debounce-ms;
+                                    changed(val) => { root.debounce-ms = Math.round(val); }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // -------------------------------------------------------------
+                // TAB 2: RGB LIGHTING
+                // -------------------------------------------------------------
+                if root.active-tab == 2: VerticalLayout {
+                    padding: 24px;
+                    spacing: 16px;
+                    alignment: start;
+
+                    Text { text: "RGB LIGHTING EFFECTS & MODES"; font-size: 12px; font-weight: 800; color: #89b4fa; letter-spacing: 1px; }
+
+                    // Effect Mode Buttons
+                    HorizontalLayout {
+                        spacing: 10px;
+                        Rectangle {
+                            height: 44px; border-radius: 6px; background: root.lighting-mode == 0 ? #89b4fa : #151825; border-width: 1px; border-color: #24293e;
+                            Text { text: "Off (Dark)"; color: root.lighting-mode == 0 ? #11111b : #cdd6f4; font-weight: 800; horizontal-alignment: center; vertical-alignment: center; width: 100%; height: 100%; }
+                            TouchArea { clicked => { root.set-lighting-mode-value(0); } }
+                        }
+                        Rectangle {
+                            height: 44px; border-radius: 6px; background: root.lighting-mode == 1 ? #89b4fa : #151825; border-width: 1px; border-color: #24293e;
+                            Text { text: "Static Color"; color: root.lighting-mode == 1 ? #11111b : #cdd6f4; font-weight: 800; horizontal-alignment: center; vertical-alignment: center; width: 100%; height: 100%; }
+                            TouchArea { clicked => { root.set-lighting-mode-value(1); } }
+                        }
+                        Rectangle {
+                            height: 44px; border-radius: 6px; background: root.lighting-mode == 2 ? #89b4fa : #151825; border-width: 1px; border-color: #24293e;
+                            Text { text: "Breathing"; color: root.lighting-mode == 2 ? #11111b : #cdd6f4; font-weight: 800; horizontal-alignment: center; vertical-alignment: center; width: 100%; height: 100%; }
+                            TouchArea { clicked => { root.set-lighting-mode-value(2); } }
+                        }
+                        Rectangle {
+                            height: 44px; border-radius: 6px; background: root.lighting-mode == 3 ? #89b4fa : #151825; border-width: 1px; border-color: #24293e;
+                            Text { text: "Neon Spectrum"; color: root.lighting-mode == 3 ? #11111b : #cdd6f4; font-weight: 800; horizontal-alignment: center; vertical-alignment: center; width: 100%; height: 100%; }
+                            TouchArea { clicked => { root.set-lighting-mode-value(3); } }
+                        }
+                        Rectangle {
+                            height: 44px; border-radius: 6px; background: root.lighting-mode == 4 ? #89b4fa : #151825; border-width: 1px; border-color: #24293e;
+                            Text { text: "Color Wave"; color: root.lighting-mode == 4 ? #11111b : #cdd6f4; font-weight: 800; horizontal-alignment: center; vertical-alignment: center; width: 100%; height: 100%; }
+                            TouchArea { clicked => { root.set-lighting-mode-value(4); } }
+                        }
+                    }
+
+                    // RGB Color Palette Presets
+                    VerticalLayout {
+                        spacing: 8px;
+                        Text { text: "COLOR PALETTE (FOR STATIC & BREATHING)"; font-size: 11px; font-weight: 800; color: #a6adc8; letter-spacing: 0.5px; }
+                        HorizontalLayout {
+                            spacing: 10px;
+                            // Red
+                            Rectangle {
+                                height: 36px; border-radius: 6px; background: #f38ba8;
+                                Text { text: "Red"; font-size: 11px; font-weight: 900; color: #11111b; horizontal-alignment: center; vertical-alignment: center; width: 100%; height: 100%; }
+                                TouchArea { clicked => { root.set-lighting-color-preset(243, 139, 168); } }
+                            }
+                            // Green
+                            Rectangle {
+                                height: 36px; border-radius: 6px; background: #a6e3a1;
+                                Text { text: "Green"; font-size: 11px; font-weight: 900; color: #11111b; horizontal-alignment: center; vertical-alignment: center; width: 100%; height: 100%; }
+                                TouchArea { clicked => { root.set-lighting-color-preset(166, 227, 161); } }
+                            }
+                            // Blue
+                            Rectangle {
+                                height: 36px; border-radius: 6px; background: #89b4fa;
+                                Text { text: "Blue"; font-size: 11px; font-weight: 900; color: #11111b; horizontal-alignment: center; vertical-alignment: center; width: 100%; height: 100%; }
+                                TouchArea { clicked => { root.set-lighting-color-preset(137, 180, 250); } }
+                            }
+                            // Cyan
+                            Rectangle {
+                                height: 36px; border-radius: 6px; background: #94e2d5;
+                                Text { text: "Cyan"; font-size: 11px; font-weight: 900; color: #11111b; horizontal-alignment: center; vertical-alignment: center; width: 100%; height: 100%; }
+                                TouchArea { clicked => { root.set-lighting-color-preset(148, 226, 213); } }
+                            }
+                            // Yellow
+                            Rectangle {
+                                height: 36px; border-radius: 6px; background: #f9e2af;
+                                Text { text: "Yellow"; font-size: 11px; font-weight: 900; color: #11111b; horizontal-alignment: center; vertical-alignment: center; width: 100%; height: 100%; }
+                                TouchArea { clicked => { root.set-lighting-color-preset(249, 226, 175); } }
+                            }
+                            // Purple
+                            Rectangle {
+                                height: 36px; border-radius: 6px; background: #cba6f7;
+                                Text { text: "Purple"; font-size: 11px; font-weight: 900; color: #11111b; horizontal-alignment: center; vertical-alignment: center; width: 100%; height: 100%; }
+                                TouchArea { clicked => { root.set-lighting-color-preset(203, 166, 247); } }
+                            }
+                            // White
+                            Rectangle {
+                                height: 36px; border-radius: 6px; background: #ffffff;
+                                Text { text: "White"; font-size: 11px; font-weight: 900; color: #11111b; horizontal-alignment: center; vertical-alignment: center; width: 100%; height: 100%; }
+                                TouchArea { clicked => { root.set-lighting-color-preset(255, 255, 255); } }
+                            }
+                            // Orange
+                            Rectangle {
+                                height: 36px; border-radius: 6px; background: #fab387;
+                                Text { text: "Orange"; font-size: 11px; font-weight: 900; color: #11111b; horizontal-alignment: center; vertical-alignment: center; width: 100%; height: 100%; }
+                                TouchArea { clicked => { root.set-lighting-color-preset(250, 179, 135); } }
+                            }
+                        }
+                    }
+
+                    // Brightness & Speed Sliders Card
+                    Rectangle {
+                        height: 120px; border-radius: 10px; background: #151825; border-width: 1px; border-color: #24293e;
+                        VerticalLayout {
+                            padding: 18px; spacing: 12px;
+                            HorizontalLayout {
+                                alignment: space-between;
+                                Text { text: "Brightness:"; font-size: 12px; font-weight: 700; color: #cdd6f4; vertical-alignment: center; }
+                                Text { text: root.lighting-brightness + "%"; font-size: 12px; font-weight: 800; color: #89b4fa; vertical-alignment: center; }
+                            }
+                            Slider {
+                                minimum: 0; maximum: 100; value: root.lighting-brightness;
+                                changed(val) => { root.set-lighting-brightness-value(Math.round(val)); }
+                            }
+                            HorizontalLayout {
+                                alignment: space-between;
+                                Text { text: "Animation Speed:"; font-size: 12px; font-weight: 700; color: #cdd6f4; vertical-alignment: center; }
+                                Text { text: root.lighting-speed + "x"; font-size: 12px; font-weight: 800; color: #89b4fa; vertical-alignment: center; }
+                            }
+                            Slider {
+                                minimum: 1; maximum: 10; value: root.lighting-speed;
+                                changed(val) => { root.set-lighting-speed-value(Math.round(val)); }
+                            }
+                        }
+                    }
+                }
+
+                // -------------------------------------------------------------
+                // TAB 3: BUTTON REMAP
+                // -------------------------------------------------------------
+                if root.active-tab == 3: VerticalLayout {
+                    padding: 24px;
+                    spacing: 14px;
+                    alignment: start;
+
+                    Text { text: "MOUSE BUTTON REMAPPING"; font-size: 12px; font-weight: 800; color: #89b4fa; letter-spacing: 1px; }
+
+                    HorizontalLayout {
+                        spacing: 16px;
+                        VerticalLayout {
+                            spacing: 10px;
+                            Rectangle { height: 42px; border-radius: 6px; background: #151825; border-width: 1px; border-color: #24293e; HorizontalLayout { padding-left: 14px; padding-right: 14px; alignment: space-between; Text { text: "1. Left Click:"; font-size: 12px; color: #a6adc8; vertical-alignment: center; } Text { text: root.btn-left; font-size: 12px; font-weight: 800; color: #cdd6f4; vertical-alignment: center; } } }
+                            Rectangle { height: 42px; border-radius: 6px; background: #151825; border-width: 1px; border-color: #24293e; HorizontalLayout { padding-left: 14px; padding-right: 14px; alignment: space-between; Text { text: "2. Right Click:"; font-size: 12px; color: #a6adc8; vertical-alignment: center; } Text { text: root.btn-right; font-size: 12px; font-weight: 800; color: #cdd6f4; vertical-alignment: center; } } }
+                            Rectangle { height: 42px; border-radius: 6px; background: #151825; border-width: 1px; border-color: #24293e; HorizontalLayout { padding-left: 14px; padding-right: 14px; alignment: space-between; Text { text: "3. Middle Click:"; font-size: 12px; color: #a6adc8; vertical-alignment: center; } Text { text: root.btn-middle; font-size: 12px; font-weight: 800; color: #cdd6f4; vertical-alignment: center; } } }
+                        }
+                        VerticalLayout {
+                            spacing: 10px;
+                            Rectangle { height: 42px; border-radius: 6px; background: #151825; border-width: 1px; border-color: #24293e; HorizontalLayout { padding-left: 14px; padding-right: 14px; alignment: space-between; Text { text: "4. Forward:"; font-size: 12px; color: #a6adc8; vertical-alignment: center; } Text { text: root.btn-forward; font-size: 12px; font-weight: 800; color: #cdd6f4; vertical-alignment: center; } } }
+                            Rectangle { height: 42px; border-radius: 6px; background: #151825; border-width: 1px; border-color: #24293e; HorizontalLayout { padding-left: 14px; padding-right: 14px; alignment: space-between; Text { text: "5. Backward:"; font-size: 12px; color: #a6adc8; vertical-alignment: center; } Text { text: root.btn-back; font-size: 12px; font-weight: 800; color: #cdd6f4; vertical-alignment: center; } } }
+                            Rectangle { height: 42px; border-radius: 6px; background: #151825; border-width: 1px; border-color: #24293e; HorizontalLayout { padding-left: 14px; padding-right: 14px; alignment: space-between; Text { text: "6. DPI Button:"; font-size: 12px; color: #a6adc8; vertical-alignment: center; } Text { text: root.btn-dpi; font-size: 12px; font-weight: 800; color: #cdd6f4; vertical-alignment: center; } } }
+                        }
+                    }
+                }
+
+                // -------------------------------------------------------------
+                // TAB 4: PROFILES & SETTINGS
+                // -------------------------------------------------------------
+                if root.active-tab == 4: VerticalLayout {
+                    padding: 24px;
+                    spacing: 18px;
+                    alignment: start;
+
+                    Text { text: "PROFILES & SYSTEM INTEGRATION"; font-size: 12px; font-weight: 800; color: #89b4fa; letter-spacing: 1px; }
+
+                    Rectangle {
+                        height: 120px; border-radius: 10px; background: #151825; border-width: 1px; border-color: #24293e;
+                        VerticalLayout {
+                            padding: 18px; spacing: 14px;
+                            HorizontalLayout {
+                                alignment: space-between;
+                                Text { text: "Start automatically with system (Systemd Daemon)"; font-size: 13px; font-weight: 700; color: #cdd6f4; vertical-alignment: center; }
+                                Switch {
+                                    checked: root.autostart-enabled;
+                                    toggled => { root.autostart-toggled(self.checked); }
+                                }
+                            }
+                            HorizontalLayout {
+                                alignment: space-between;
+                                Text { text: "Mouse Onboard Memory Profile Slot:"; font-size: 13px; font-weight: 700; color: #cdd6f4; vertical-alignment: center; }
+                                Text { text: "Profile " + root.active-profile + " (Active)"; font-size: 13px; font-weight: 800; color: #a6e3a1; vertical-alignment: center; }
+                            }
+                        }
+                    }
+
+                    HorizontalLayout {
+                        spacing: 14px;
+                        Rectangle {
+                            height: 44px; border-radius: 8px; background: #252a3d; border-width: 1px; border-color: #f38ba8;
+                            Text { text: "Reset to Factory Defaults"; font-size: 12px; font-weight: 800; color: #f38ba8; horizontal-alignment: center; vertical-alignment: center; width: 100%; height: 100%; }
+                            TouchArea { clicked => { root.reset-factory(); } }
+                        }
+                        Rectangle {
+                            height: 44px; border-radius: 8px; background: #252a3d; border-width: 1px; border-color: #313244;
+                            Text { text: "Terminate Daemon"; font-size: 12px; font-weight: 800; color: #cdd6f4; horizontal-alignment: center; vertical-alignment: center; width: 100%; height: 100%; }
+                            TouchArea { clicked => { root.quit-clicked(); } }
+                        }
+                    }
+                }
+            }
+        }
+
+        // ---------------------------------------------------------------------
+        // 3. BOTTOM ACTION & STATUS BAR (Fixed 64px at bottom of window)
+        // ---------------------------------------------------------------------
+        Rectangle {
+            height: 64px;
+            background: #131622;
+            border-width: 1px;
+            border-color: #1e2235;
+
+            HorizontalLayout {
+                padding-left: 20px;
+                padding-right: 20px;
+                alignment: space-between;
+
+                // Left: Status Banner
+                HorizontalLayout {
+                    alignment: start;
+                    spacing: 10px;
+                    Rectangle {
+                        width: 8px;
+                        height: 8px;
+                        border-radius: 4px;
+                        background: root.status-color;
+                        y: (parent.height - self.height) / 2;
+                    }
+                    Text {
+                        text: root.status-banner;
+                        font-size: 12px;
+                        font-weight: 700;
+                        color: #cdd6f4;
+                        vertical-alignment: center;
+                    }
+                }
+
+                // Right: Action Buttons
+                HorizontalLayout {
+                    spacing: 12px;
+                    alignment: end;
+
+                    // Refresh Button
+                    VerticalLayout {
+                        alignment: center;
+                        Rectangle {
+                            height: 38px;
+                            width: 130px;
+                            border-radius: 6px;
+                            background: refresh-touch.has-hover ? #252b40 : #1c2030;
+                            border-width: 1px;
+                            border-color: #313244;
+                            Text {
+                                text: "Refresh Status";
+                                font-size: 12px;
+                                font-weight: 800;
+                                color: #cdd6f4;
+                                horizontal-alignment: center;
+                                vertical-alignment: center;
+                                width: 100%;
+                                height: 100%;
+                            }
+                            refresh-touch := TouchArea { clicked => { root.refresh-all(); } }
+                        }
+                    }
+
+                    // Apply Button
+                    VerticalLayout {
+                        alignment: center;
+                        Rectangle {
+                            height: 38px;
+                            width: 130px;
+                            border-radius: 6px;
+                            background: apply-touch.has-hover ? #b4befe : #89b4fa;
+                            Text {
+                                text: "Apply Settings";
+                                font-size: 12px;
+                                font-weight: 900;
+                                color: #11111b;
+                                horizontal-alignment: center;
+                                vertical-alignment: center;
+                                width: 100%;
+                                height: 100%;
+                            }
+                            apply-touch := TouchArea { clicked => { root.apply-settings(); } }
+                        }
+                    }
+
+                    // Sync Onboard Button
+                    VerticalLayout {
+                        alignment: center;
+                        Rectangle {
+                            height: 38px;
+                            width: 130px;
+                            border-radius: 6px;
+                            background: sync-touch.has-hover ? #c3e88d : #a6e3a1;
+                            Text {
+                                text: "Sync Onboard";
+                                font-size: 12px;
+                                font-weight: 900;
+                                color: #11111b;
+                                horizontal-alignment: center;
+                                vertical-alignment: center;
+                                width: 100%;
+                                height: 100%;
+                            }
+                            sync-touch := TouchArea { clicked => { root.sync-onboard(); } }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
