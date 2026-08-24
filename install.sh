@@ -66,8 +66,8 @@ if command -v sudo &> /dev/null; then
     sudo udevadm trigger || true
 fi
 
-# 4. Install Desktop Shortcut & App Icon
-echo -e "${BLUE}[4/5] Installing Desktop Shortcut & Icon...${NC}"
+# 4. Install Desktop Shortcut & Configure Autostart on Boot
+echo -e "${BLUE}[4/5] Configuring system autostart & desktop entry...${NC}"
 if command -v sudo &> /dev/null; then
     sudo install -Dm644 resources/icon.png /usr/share/icons/hicolor/128x128/apps/attackshark-battery.png
 fi
@@ -75,8 +75,8 @@ mkdir -p "$HOME/.local/share/applications" "$HOME/.config/autostart"
 cp -f attackshark-control.desktop "$HOME/.local/share/applications/attackshark-control.desktop"
 cp -f attackshark-control.desktop "$HOME/.config/autostart/attackshark-control.desktop"
 
-# 5. Configure & Start Systemd User Service
-echo -e "${BLUE}[5/5] Registering and starting background service...${NC}"
+# 5. Configure & Enable Systemd User Service on Boot
+echo -e "${BLUE}[5/5] Enabling background daemon to start automatically on system boot...${NC}"
 mkdir -p "$HOME/.config/systemd/user"
 cp -f attackshark-control.service "$HOME/.config/systemd/user/attackshark-control.service"
 systemctl --user daemon-reload
@@ -89,5 +89,5 @@ fi
 
 echo -e "\n${GREEN}${BOLD}======================================================${NC}"
 echo -e "${GREEN}${BOLD}  Attack Shark R5 Ultra Control Center Ready! 🚀       ${NC}"
-echo -e "${BLUE}  Status: $(systemctl --user is-active attackshark-control.service)${NC}"
+echo -e "${BLUE}  Autostart on Boot: ENABLED (systemd + XDG autostart)${NC}"
 echo -e "${GREEN}${BOLD}======================================================${NC}\n"

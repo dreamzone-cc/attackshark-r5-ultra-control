@@ -11,6 +11,7 @@ depends=('fontconfig' 'freetype2' 'libxkbcommon' 'wayland')
 makedepends=('cargo' 'git')
 provides=('attackshark-r5-ultra-control')
 conflicts=('attackshark-r5-ultra-control')
+install="attackshark-control.install"
 source=("git+https://github.com/dreamzone-cc/attackshark-r5-ultra-control.git")
 sha256sums=('SKIP')
 
@@ -27,5 +28,6 @@ package() {
     install -Dm644 "99-attackshark-r5.rules" "${pkgdir}/usr/lib/udev/rules.d/99-attackshark-r5.rules"
     install -Dm644 "attackshark-control.service" "${pkgdir}/usr/lib/systemd/user/attackshark-control.service"
     install -Dm644 "attackshark-control.desktop" "${pkgdir}/usr/share/applications/attackshark-control.desktop"
+    install -Dm644 "attackshark-control.desktop" "${pkgdir}/etc/xdg/autostart/attackshark-control.desktop"
     install -Dm644 "resources/icon.png" "${pkgdir}/usr/share/icons/hicolor/128x128/apps/attackshark-battery.png"
 }
