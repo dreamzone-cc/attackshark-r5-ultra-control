@@ -10,6 +10,14 @@ A standalone, high-performance, native Linux driver and GUI Control Center for t
 
 ---
 
+## 📸 Screenshots & UI Showcase
+
+| 🔋 Dashboard & Live Power | 🎯 DPI & Sensor Tuning | 🌈 RGB Lighting Engine |
+| :---: | :---: | :---: |
+| ![Dashboard](screenshots/1.png) | ![DPI & Sensor](screenshots/2.png) | ![RGB Lighting](screenshots/3.png) |
+
+---
+
 ## ⚡ One-Line Quick Install (CachyOS / Arch Linux)
 
 Install, compile, configure udev rules, and launch the background daemon with a single command:
