@@ -126,6 +126,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     main_window.on_start_window_drag(move || {
         if let Some(ui) = ui_weak_drag_native.upgrade() {
             let win = ui.window();
+            // 1. Release Slint's internal TouchArea mouse grab so it doesn't trap subsequent mouse clicks
+            win.dispatch_event(slint::platform::WindowEvent::PointerReleased {
+                position: slint::LogicalPosition::new(0.0, 0.0),
+                button: slint::platform::PointerEventButton::Left,
+            });
+            // 2. Delegate window dragging to the OS Compositor (Wayland / X11)
             let _ = win.with_winit_window(|winit_win| {
                 let _ = winit_win.drag_window();
             });
