@@ -132,21 +132,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     });
 
-    // Fallback Window Repositioning (Delta movement)
-    let ui_weak_drag_fallback = ui_weak.clone();
-    main_window.on_window_dragged(move |dx, dy| {
-        if let Some(ui) = ui_weak_drag_fallback.upgrade() {
-            let win = ui.window();
-            let scale = win.scale_factor();
-            let p_dx = (dx * scale) as i32;
-            let p_dy = (dy * scale) as i32;
-            if p_dx != 0 || p_dy != 0 {
-                let pos = win.position();
-                win.set_position(slint::PhysicalPosition::new(pos.x + p_dx, pos.y + p_dy));
-            }
-        }
-    });
-
     // Shared State
     let mut current_state = DeviceState::default();
     let saved_cfg = load_config();
