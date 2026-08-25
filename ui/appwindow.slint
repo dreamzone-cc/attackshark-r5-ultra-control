@@ -3,11 +3,12 @@ import { Slider, Switch, ScrollView } from "std-widgets.slint";
 export component AppWindow inherits Window {
     title: "Attack Shark R5 Ultra Control Center";
     icon: @image-url("../resources/icon.png");
+    no-frame: true;
     preferred-width: 880px;
     preferred-height: 640px;
     min-width: 820px;
     min-height: 580px;
-    background: #0d0f18;
+    background: transparent;
     default-font-family: "sans-serif";
 
     // Global Properties
@@ -72,13 +73,22 @@ export component AppWindow inherits Window {
     callback quit-clicked();
 
     // =========================================================================
-    // ROOT LAYOUT: Consumes 100% of Window Width and Height
+    // ROOT FRAMELESS CONTAINER: 100% Window, Rounded Corners & Custom Border
     // =========================================================================
-    VerticalLayout {
+    main-container := Rectangle {
         width: 100%;
         height: 100%;
-        padding: 0px;
-        spacing: 0px;
+        background: #0d0f18;
+        border-radius: 12px;
+        border-width: 1px;
+        border-color: #24293e;
+        clip: true;
+
+        VerticalLayout {
+            width: 100%;
+            height: 100%;
+            padding: 0px;
+            spacing: 0px;
 
         // ---------------------------------------------------------------------
         // 1. TOP HEADER (Fixed 64px)
@@ -1014,4 +1024,6 @@ export component AppWindow inherits Window {
             }
         }
     }
+}
+
 }
