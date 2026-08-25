@@ -42,8 +42,8 @@ pub fn set_enabled(enable: bool) -> std::io::Result<()> {
         let content = format!(
             "[Desktop Entry]\n\
              Type=Application\n\
-             Name=Glitch R5U Control Center\n\
-             GenericName=Gaming Mouse Control Center\n\
+             Name=Glitch R5U\n\
+             GenericName=Gaming Mouse Utility\n\
              Comment=Glitch R5U Linux Control Suite for Attack Shark R5 Ultra Mouse\n\
              Exec={}\n\
              Icon=glitch-r5u\n\

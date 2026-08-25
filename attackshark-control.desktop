@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
-Name=Glitch R5U Control Center
-GenericName=Gaming Mouse Control Center
+Name=Glitch R5U
+GenericName=Gaming Mouse Utility
 Comment=Glitch R5U Linux Control Suite for Attack Shark R5 Ultra Mouse
 Exec=/home/ggonlinux/.local/bin/glitch-r5u
 Icon=glitch-r5u

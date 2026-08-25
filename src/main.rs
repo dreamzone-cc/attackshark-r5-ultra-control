@@ -95,7 +95,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
-    eprintln!("[INFO] Initializing Glitch R5U Control Center...");
+    eprintln!("[INFO] Initializing Glitch R5U...");
 
     let main_window = AppWindow::new()?;
     let ui_weak = main_window.as_weak();
@@ -229,7 +229,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
 
     let on_quit: Arc<dyn Fn() + Send + Sync> = Arc::new(|| {
-        eprintln!("[INFO] Quitting Control Center daemon.");
+        eprintln!("[INFO] Quitting Glitch R5U daemon.");
         let _ = slint::quit_event_loop();
     });
 
@@ -556,7 +556,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     eprintln!("[INFO] Running Slint event loop until quit...");
     slint::run_event_loop_until_quit()?;
-    eprintln!("[INFO] Control Center event loop terminated cleanly.");
+    eprintln!("[INFO] Glitch R5U event loop terminated cleanly.");
 
     Ok(())
 }

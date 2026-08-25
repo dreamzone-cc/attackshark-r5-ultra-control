@@ -9,7 +9,7 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 echo -e "${BLUE}${BOLD}======================================================${NC}"
-echo -e "${GREEN}${BOLD}         Glitch R5U Control Center Installer          ${NC}"
+echo -e "${GREEN}${BOLD}                 Glitch R5U Installer                 ${NC}"
 echo -e "${BLUE}${BOLD}  Native Linux • Rust • Slint UI • CachyOS / Arch     ${NC}"
 echo -e "${BLUE}${BOLD}======================================================${NC}\n"
 
@@ -106,6 +106,6 @@ if [ -n "$BUILD_DIR" ] && [ -d "$BUILD_DIR" ]; then
 fi
 
 echo -e "\n${GREEN}${BOLD}======================================================${NC}"
-echo -e "${GREEN}${BOLD}         Glitch R5U Control Center Ready! 🚀          ${NC}"
+echo -e "${GREEN}${BOLD}                 Glitch R5U Ready! 🚀                 ${NC}"
 echo -e "${BLUE}  Autostart on Boot: ENABLED (systemd + XDG autostart)${NC}"
 echo -e "${GREEN}${BOLD}======================================================${NC}\n"

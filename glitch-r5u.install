@@ -1,7 +1,7 @@
 post_install() {
     udevadm control --reload-rules && udevadm trigger
     echo "=================================================================="
-    echo "       Glitch R5U Control Center installed successfully!          "
+    echo "            Glitch R5U installed successfully!                    "
     echo " To enable autostart on boot:"
     echo "   systemctl --user enable --now glitch-r5u.service"
     echo "=================================================================="

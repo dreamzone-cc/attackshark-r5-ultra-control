@@ -1,11 +1,10 @@
 post_install() {
-    udevadm control --reload-rules 2>/dev/null || true
-    udevadm trigger 2>/dev/null || true
-    echo "------------------------------------------------------------------"
-    echo " Attack Shark R5 Ultra Control Center installed successfully!     "
-    echo " To enable & start the background daemon immediately:             "
-    echo "   systemctl --user enable --now attackshark-control.service      "
-    echo "------------------------------------------------------------------"
+    udevadm control --reload-rules && udevadm trigger
+    echo "=================================================================="
+    echo "            Glitch R5U installed successfully!                    "
+    echo " To enable autostart on boot:"
+    echo "   systemctl --user enable --now glitch-r5u.service"
+    echo "=================================================================="
 }
 
 post_upgrade() {
@@ -13,6 +12,5 @@ post_upgrade() {
 }
 
 post_remove() {
-    udevadm control --reload-rules 2>/dev/null || true
-    udevadm trigger 2>/dev/null || true
+    udevadm control --reload-rules && udevadm trigger
 }

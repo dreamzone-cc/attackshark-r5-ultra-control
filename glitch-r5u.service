@@ -1,5 +1,5 @@
 [Unit]
-Description=Glitch R5U Control Center Daemon (Rust + Slint)
+Description=Glitch R5U Daemon (Rust + Slint)
 After=graphical-session.target default.target
 PartOf=graphical-session.target
 

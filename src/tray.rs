@@ -84,7 +84,7 @@ impl Tray for ControlTray {
         };
 
         ToolTip {
-            title: "Glitch R5U Control Center".into(),
+            title: "Glitch R5U".into(),
             description: desc,
             icon_name: "glitch-r5u".into(),
             icon_pixmap: Vec::new(),
@@ -106,7 +106,7 @@ impl Tray for ControlTray {
             .into(),
             MenuItem::Separator,
             StandardItem {
-                label: "📊 Open Control Center".into(),
+                label: "📊 Open Glitch R5U".into(),
                 activate: Box::new(|this: &mut Self| {
                     (this.on_open)();
                 }),

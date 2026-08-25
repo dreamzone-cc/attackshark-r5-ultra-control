@@ -1,7 +1,7 @@
 <div align="center">
   <img src="resources/logo.png" width="160" alt="Glitch R5U Logo" />
-  <h1>Glitch R5U Control Center</h1>
-  <p><b>Comprehensive Native Linux Control Suite & Driver for Attack Shark R5 Ultra Gaming Mouse</b></p>
+  <h1>Glitch R5U</h1>
+  <p><b>Comprehensive Native Linux Driver & Control Suite for Attack Shark R5 Ultra Gaming Mouse</b></p>
 
   [![CachyOS Tested](https://img.shields.io/badge/CachyOS-Validated-00d1b2?style=for-the-badge&logo=archlinux)](https://cachyos.org)
   [![Arch Linux](https://img.shields.io/badge/Arch_Linux-Compatible-1793d1?style=for-the-badge&logo=archlinux)](https://archlinux.org)
@@ -14,7 +14,7 @@
 
 ## 📖 Overview
 
-**Glitch R5U** is a standalone, high-performance, native Linux driver and GUI Control Center for the **Attack Shark R5 Ultra Gaming Mouse** (PAW3395 Sensor + Nordic MCU). Built from scratch in **Rust** and **Slint UI**, it features direct non-root HID kernel communication, live hardware parameter manipulation, KDE Plasma 6 Wayland System Tray integration, frameless modern design, and onboard EEPROM profile synchronization.
+**Glitch R5U** is a standalone, high-performance, native Linux driver and GUI suite for the **Attack Shark R5 Ultra Gaming Mouse** (PAW3395 Sensor + Nordic MCU). Built from scratch in **Rust** and **Slint UI**, it features direct non-root HID kernel communication, live hardware parameter manipulation, KDE Plasma 6 Wayland System Tray integration, frameless modern design, and onboard EEPROM profile synchronization.
 
 ---
 
@@ -62,7 +62,7 @@ curl -sSL https://raw.githubusercontent.com/dreamzone-cc/attackshark-r5-ultra-co
 - **🕒 KDE Plasma 6 Wayland System Tray Integration**:
   - Native `StatusNotifierItem` applet next to your digital clock.
   - Live color-coded battery status dot.
-  - Quick context menu: `Open Control Center`, `Refresh Status`, `Quick DPI Stage Switcher (Stages 1–6)`, `Quit Daemon`.
+  - Quick context menu: `Open Glitch R5U`, `Refresh Status`, `Quick DPI Stage Switcher (Stages 1–6)`, `Quit Daemon`.
 - **🛡️ Single-Instance Locking**:
   - Unix Domain Socket IPC prevents duplicate instances and brings active window to front when triggered.
 - **⚙️ Profile & Onboard Memory Persistence**:
@@ -74,7 +74,7 @@ curl -sSL https://raw.githubusercontent.com/dreamzone-cc/attackshark-r5-ultra-co
 
 ## 🖥️ Graphical Interface Overview
 
-The Control Center provides a modern, docked dark UI categorized into 5 functional areas:
+The Glitch R5U application provides a modern, docked dark UI categorized into 5 functional areas:
 
 1. **Dashboard**: Live hero battery card, power management slider, and instant performance badges.
 2. **DPI & Sensor**: 6 DPI stage cards, 7 polling rate pills, LOD switcher, and debounce delay slider.
