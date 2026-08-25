@@ -100,69 +100,57 @@ export component AppWindow inherits Window {
             border-width: 1px;
             border-color: #1e2235;
 
+            // Strict TitleBar Drag Area: Covers left & middle of header only (stops 270px before right edge)
+            titlebar-drag-area := TouchArea {
+                x: 0px;
+                y: 0px;
+                width: parent.width - 270px;
+                height: 64px;
+                pointer-event(event) => {
+                    if (event.button == PointerEventButton.left && event.kind == PointerEventKind.down) {
+                        root.start-window-drag();
+                    }
+                }
+            }
+
             HorizontalLayout {
                 padding-left: 20px;
                 padding-right: 20px;
                 alignment: space-between;
 
-                // Left: Logo + Branding (Draggable TitleBar Area)
-                Rectangle {
-                    HorizontalLayout {
-                        spacing: 12px;
-                        alignment: start;
-                        VerticalLayout {
-                            alignment: center;
-                            Image {
-                                source: @image-url("../resources/icon.png");
-                                width: 32px;
-                                height: 32px;
-                            }
-                        }
-                        VerticalLayout {
-                            alignment: center;
-                            spacing: 2px;
-                            Text {
-                                text: "GLITCH R5U";
-                                font-size: 16px;
-                                font-weight: 900;
-                                color: #cdd6f4;
-                                letter-spacing: 1.5px;
-                            }
-                            Text {
-                                text: "PAW3395 SENSOR • LINUX CONTROL SUITE";
-                                font-size: 10px;
-                                font-weight: 700;
-                                color: #89b4fa;
-                                letter-spacing: 1px;
-                            }
+                // Left: Logo + Branding
+                HorizontalLayout {
+                    spacing: 12px;
+                    alignment: start;
+                    VerticalLayout {
+                        alignment: center;
+                        Image {
+                            source: @image-url("../resources/icon.png");
+                            width: 32px;
+                            height: 32px;
                         }
                     }
-                    TouchArea {
-                        width: 100%;
-                        height: 100%;
-                        pointer-event(event) => {
-                            if (event.button == PointerEventButton.left && event.kind == PointerEventKind.down) {
-                                root.start-window-drag();
-                            }
+                    VerticalLayout {
+                        alignment: center;
+                        spacing: 2px;
+                        Text {
+                            text: "GLITCH R5U";
+                            font-size: 16px;
+                            font-weight: 900;
+                            color: #cdd6f4;
+                            letter-spacing: 1.5px;
+                        }
+                        Text {
+                            text: "PAW3395 SENSOR • LINUX CONTROL SUITE";
+                            font-size: 10px;
+                            font-weight: 700;
+                            color: #89b4fa;
+                            letter-spacing: 1px;
                         }
                     }
                 }
 
-                // Middle: Flexible Spacer (Primary TitleBar Drag Area)
-                Rectangle {
-                    horizontal-stretch: 1;
-                    TouchArea {
-                        width: 100%;
-                        height: 100%;
-                        pointer-event(event) => {
-                            if (event.button == PointerEventButton.left && event.kind == PointerEventKind.down) {
-                                root.start-window-drag();
-                            }
-                        }
-                    }
-                }
-
-                // Right: Badges & Window Close (Isolated & Non-Draggable)
+                // Right: Badges & Window Close (Completely outside drag area)
                 HorizontalLayout {
                     spacing: 12px;
                     alignment: end;
