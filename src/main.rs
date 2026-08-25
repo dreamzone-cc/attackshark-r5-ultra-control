@@ -9,6 +9,7 @@ mod tray;
 
 use config::{load_config, save_config, AppConfig};
 use device::R5Device;
+use i_slint_backend_winit::WinitWindowAccessor;
 use ksni::blocking::TrayMethods;
 use protocol::{DeviceState, LightingMode, LodSetting, PacketBuilder, PollingRate};
 use slint::{Color, ComponentHandle};
@@ -120,10 +121,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         slint::CloseRequestResponse::HideWindow
     });
 
-    // Custom TitleBar Window Drag Handler
-    let ui_weak_drag = ui_weak.clone();
+    // Custom TitleBar Window Drag Handler (Native Wayland/X11 Compositor Drag)
+    let ui_weak_drag_native = ui_weak.clone();
+    main_window.on_start_window_drag(move || {
+        if let Some(ui) = ui_weak_drag_native.upgrade() {
+            let win = ui.window();
+            let _ = win.with_winit_window(|winit_win| {
+                let _ = winit_win.drag_window();
+            });
+        }
+    });
+
+    // Fallback Window Repositioning (Delta movement)
+    let ui_weak_drag_fallback = ui_weak.clone();
     main_window.on_window_dragged(move |dx, dy| {
-        if let Some(ui) = ui_weak_drag.upgrade() {
+        if let Some(ui) = ui_weak_drag_fallback.upgrade() {
             let win = ui.window();
             let scale = win.scale_factor();
             let p_dx = (dx * scale) as i32;
