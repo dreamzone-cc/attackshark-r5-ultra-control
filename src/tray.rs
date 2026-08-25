@@ -78,9 +78,9 @@ impl Tray for ControlTray {
         let level = self.battery_level.load(Ordering::Relaxed);
         let dpi = self.active_dpi.load(Ordering::Relaxed);
         let desc = if level >= 0 {
-            format!("Glitch R5U\nBattery: {}%\nDPI: {}", level, dpi)
+            format!("Battery: {}%\nDPI: {}", level, dpi)
         } else {
-            "Glitch R5U\nStatus: Offline / Sleep".into()
+            "Status: Offline / Sleep".into()
         };
 
         ToolTip {
