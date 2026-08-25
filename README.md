@@ -1,12 +1,20 @@
-# Attack Shark R5 Ultra Control Center (Linux) 🖱️⚡
+<div align="center">
+  <img src="resources/logo.png" width="160" alt="Glitch R5U Logo" />
+  <h1>Glitch R5U Control Center</h1>
+  <p><b>Comprehensive Native Linux Control Suite & Driver for Attack Shark R5 Ultra Gaming Mouse</b></p>
 
-[![CachyOS Tested](https://img.shields.io/badge/CachyOS-Validated-00d1b2?style=for-the-badge&logo=archlinux)](https://cachyos.org)
-[![Arch Linux](https://img.shields.io/badge/Arch_Linux-Compatible-1793d1?style=for-the-badge&logo=archlinux)](https://archlinux.org)
-[![Rust Native](https://img.shields.io/badge/Rust-Native_Performance-dea584?style=for-the-badge&logo=rust)](https://www.rust-lang.org/)
-[![Slint UI](https://img.shields.io/badge/Slint_UI-Hardware_Accelerated-27ae60?style=for-the-badge)](https://slint.dev/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+  [![CachyOS Tested](https://img.shields.io/badge/CachyOS-Validated-00d1b2?style=for-the-badge&logo=archlinux)](https://cachyos.org)
+  [![Arch Linux](https://img.shields.io/badge/Arch_Linux-Compatible-1793d1?style=for-the-badge&logo=archlinux)](https://archlinux.org)
+  [![Rust Native](https://img.shields.io/badge/Rust-Native_Performance-dea584?style=for-the-badge&logo=rust)](https://www.rust-lang.org/)
+  [![Slint UI](https://img.shields.io/badge/Slint_UI-Hardware_Accelerated-27ae60?style=for-the-badge)](https://slint.dev/)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+</div>
 
-A standalone, high-performance, native Linux driver and GUI Control Center for the **Attack Shark R5 Ultra Gaming Mouse** (PAW3395 Sensor + Nordic MCU). Built from scratch in **Rust** and **Slint UI**, featuring direct non-root HID kernel communication, live hardware parameter manipulation, KDE Plasma 6 Wayland System Tray integration, and onboard EEPROM profile synchronization.
+---
+
+## 📖 Overview
+
+**Glitch R5U** is a standalone, high-performance, native Linux driver and GUI Control Center for the **Attack Shark R5 Ultra Gaming Mouse** (PAW3395 Sensor + Nordic MCU). Built from scratch in **Rust** and **Slint UI**, it features direct non-root HID kernel communication, live hardware parameter manipulation, KDE Plasma 6 Wayland System Tray integration, frameless modern design, and onboard EEPROM profile synchronization.
 
 ---
 
@@ -30,6 +38,9 @@ curl -sSL https://raw.githubusercontent.com/dreamzone-cc/attackshark-r5-ultra-co
 
 ## 🌟 Key Features
 
+- **🎨 Frameless Modern UI**:
+  - Sleek borderless dark interface with rounded corners and custom top header.
+  - Dedicated official **Glitch R5U** vector logo and icons.
 - **🎯 6-Stage DPI Performance**:
   - Full configuration from 50 to 26,000 DPI.
   - Per-stage active selector with real-time mouse MCU sync.
@@ -52,9 +63,11 @@ curl -sSL https://raw.githubusercontent.com/dreamzone-cc/attackshark-r5-ultra-co
   - Native `StatusNotifierItem` applet next to your digital clock.
   - Live color-coded battery status dot.
   - Quick context menu: `Open Control Center`, `Refresh Status`, `Quick DPI Stage Switcher (Stages 1–6)`, `Quit Daemon`.
+- **🛡️ Single-Instance Locking**:
+  - Unix Domain Socket IPC prevents duplicate instances and brings active window to front when triggered.
 - **⚙️ Profile & Onboard Memory Persistence**:
   - Direct sync to mouse onboard EEPROM memory.
-  - Local JSON configuration persistence at `~/.config/attackshark-control/config.json`.
+  - Local JSON configuration persistence at `~/.config/glitch-r5u/config.json`.
   - Systemd user daemon for instant background start on boot.
 
 ---
@@ -82,8 +95,8 @@ sudo pacman -S --needed base-devel rust cargo git fontconfig freetype2 libxkbcom
 ### 2. Clone and Build
 
 ```bash
-git clone https://github.com/dreamzone-cc/attackshark-r5-ultra-control.git
-cd attackshark-r5-ultra-control
+git clone https://github.com/dreamzone-cc/attackshark-r5-ultra-control.git glitch-r5u
+cd glitch-r5u
 cargo build --release
 ```
 
@@ -130,13 +143,13 @@ The control daemon runs as a lightweight user systemd service:
 
 ```bash
 # Check service status and live logs
-systemctl --user status attackshark-control.service
+systemctl --user status glitch-r5u.service
 
 # Restart daemon
-systemctl --user restart attackshark-control.service
+systemctl --user restart glitch-r5u.service
 
 # View real-time logs
-journalctl --user -u attackshark-control.service -f
+journalctl --user -u glitch-r5u.service -f
 ```
 
 ---
@@ -146,7 +159,7 @@ journalctl --user -u attackshark-control.service -f
 To cleanly remove all binaries, systemd units, and udev rules:
 
 ```bash
-cd attackshark-r5-ultra-control
+cd glitch-r5u
 ./uninstall.sh
 ```
 

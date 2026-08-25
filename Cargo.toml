@@ -1,9 +1,9 @@
 [package]
-name = "attackshark-r5-ultra-control"
-version = "1.0.0"
+name = "glitch-r5u"
+version = "1.1.0"
 edition = "2021"
 authors = ["dreamzone-cc"]
-description = "Comprehensive Linux Control Center for Attack Shark R5 Ultra Gaming Mouse (Rust + Slint UI)"
+description = "Glitch R5U: Native Linux Control Suite for Attack Shark R5 Ultra Gaming Mouse (Rust + Slint UI)"
 license = "MIT"
 
 [dependencies]

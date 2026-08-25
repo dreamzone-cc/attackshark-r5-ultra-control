@@ -6,10 +6,10 @@ use std::thread;
 
 fn socket_path() -> PathBuf {
     if let Ok(runtime_dir) = std::env::var("XDG_RUNTIME_DIR") {
-        PathBuf::from(runtime_dir).join("attackshark-control.sock")
+        PathBuf::from(runtime_dir).join("glitch-r5u.sock")
     } else {
         let uid = unsafe { libc::getuid() };
-        PathBuf::from(format!("/tmp/attackshark-control-{}.sock", uid))
+        PathBuf::from(format!("/tmp/glitch-r5u-{}.sock", uid))
     }
 }
 

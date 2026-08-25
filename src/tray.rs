@@ -13,15 +13,15 @@ pub struct ControlTray {
 
 impl Tray for ControlTray {
     fn id(&self) -> String {
-        "attackshark-r5-ultra-control".into()
+        "glitch-r5u".into()
     }
 
     fn title(&self) -> String {
-        "Attack Shark R5 Ultra".into()
+        "Glitch R5U".into()
     }
 
     fn icon_name(&self) -> String {
-        "input-mouse".into()
+        "glitch-r5u".into()
     }
 
     fn icon_pixmap(&self) -> Vec<Icon> {
@@ -78,15 +78,15 @@ impl Tray for ControlTray {
         let level = self.battery_level.load(Ordering::Relaxed);
         let dpi = self.active_dpi.load(Ordering::Relaxed);
         let desc = if level >= 0 {
-            format!("Attack Shark R5 Ultra\nBattery: {}%\nDPI: {}", level, dpi)
+            format!("Glitch R5U\nBattery: {}%\nDPI: {}", level, dpi)
         } else {
-            "Attack Shark R5 Ultra\nStatus: Offline / Sleep".into()
+            "Glitch R5U\nStatus: Offline / Sleep".into()
         };
 
         ToolTip {
-            title: "Attack Shark R5 Ultra Control Center".into(),
+            title: "Glitch R5U Control Center".into(),
             description: desc,
-            icon_name: "input-mouse".into(),
+            icon_name: "glitch-r5u".into(),
             icon_pixmap: Vec::new(),
         }
     }
@@ -99,7 +99,7 @@ impl Tray for ControlTray {
         use ksni::menu::*;
         vec![
             StandardItem {
-                label: "🖱️ Attack Shark R5 Ultra".into(),
+                label: "🖱️ Glitch R5U".into(),
                 enabled: false,
                 ..Default::default()
             }

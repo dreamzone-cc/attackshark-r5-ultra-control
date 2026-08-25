@@ -53,7 +53,7 @@ impl Default for AppConfig {
 
 fn config_path() -> PathBuf {
     let mut dir = dirs_config();
-    dir.push("attackshark-control");
+    dir.push("glitch-r5u");
     let _ = create_dir_all(&dir);
     dir.push("config.json");
     dir
@@ -75,6 +75,17 @@ pub fn load_config() -> AppConfig {
         let mut content = String::new();
         if f.read_to_string(&mut content).is_ok() {
             if let Ok(cfg) = serde_json::from_str::<AppConfig>(&content) {
+                return cfg;
+            }
+        }
+    }
+    // Legacy migration fallback
+    let legacy_path = dirs_config().join("attackshark-control").join("config.json");
+    if let Ok(mut f) = File::open(&legacy_path) {
+        let mut content = String::new();
+        if f.read_to_string(&mut content).is_ok() {
+            if let Ok(cfg) = serde_json::from_str::<AppConfig>(&content) {
+                let _ = save_config(&cfg);
                 return cfg;
             }
         }

@@ -95,7 +95,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
-    eprintln!("[INFO] Initializing Attack Shark R5 Ultra Control Center...");
+    eprintln!("[INFO] Initializing Glitch R5U Control Center...");
 
     let main_window = AppWindow::new()?;
     let ui_weak = main_window.as_weak();

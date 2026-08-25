@@ -12,7 +12,7 @@ fn autostart_file_path() -> PathBuf {
     };
     path.push("autostart");
     let _ = create_dir_all(&path);
-    path.push("attackshark-control.desktop");
+    path.push("glitch-r5u.desktop");
     path
 }
 
@@ -22,25 +22,31 @@ pub fn is_enabled() -> bool {
 
 pub fn set_enabled(enable: bool) -> std::io::Result<()> {
     let path = autostart_file_path();
+    // Also cleanup legacy desktop autostart file if present
+    if let Some(parent) = path.parent() {
+        let legacy_file = parent.join("attackshark-control.desktop");
+        let _ = remove_file(legacy_file);
+    }
+
     if enable {
         let exec_path = std::env::current_exe()
             .map(|p| p.to_string_lossy().to_string())
             .unwrap_or_else(|_| {
                 if let Ok(home) = std::env::var("HOME") {
-                    format!("{}/.local/bin/attackshark-r5-ultra-control", home)
+                    format!("{}/.local/bin/glitch-r5u", home)
                 } else {
-                    "/usr/local/bin/attackshark-r5-ultra-control".to_string()
+                    "/usr/local/bin/glitch-r5u".to_string()
                 }
             });
 
         let content = format!(
             "[Desktop Entry]\n\
              Type=Application\n\
-             Name=Attack Shark R5 Ultra Control Center\n\
+             Name=Glitch R5U Control Center\n\
              GenericName=Gaming Mouse Control Center\n\
-             Comment=Native Linux Control Center & Battery Monitor for Attack Shark R5 Ultra\n\
+             Comment=Glitch R5U Linux Control Suite for Attack Shark R5 Ultra Mouse\n\
              Exec={}\n\
-             Icon=attackshark-battery\n\
+             Icon=glitch-r5u\n\
              Terminal=false\n\
              Categories=Utility;HardwareSettings;\n\
              StartupNotify=false\n\
@@ -52,14 +58,14 @@ pub fn set_enabled(enable: bool) -> std::io::Result<()> {
         file.write_all(content.as_bytes())?;
 
         let _ = std::process::Command::new("systemctl")
-            .args(&["--user", "enable", "attackshark-control.service"])
+            .args(&["--user", "enable", "glitch-r5u.service"])
             .status();
     } else {
         if path.exists() {
             let _ = remove_file(&path);
         }
         let _ = std::process::Command::new("systemctl")
-            .args(&["--user", "disable", "attackshark-control.service"])
+            .args(&["--user", "disable", "glitch-r5u.service"])
             .status();
     }
     Ok(())

@@ -135,7 +135,7 @@ pub fn find_device_path() -> Option<PathBuf> {
                 if upper.contains("INPUT2") || parent_content.contains("IN02") || parent_content.contains("INTERFACE=3/0/0") {
                     let node_name = entry.file_name();
                     let dev_path = PathBuf::from("/dev").join(node_name);
-                    eprintln!("[INFO] Found target Attack Shark R5 Ultra interface 2 at {:?}", dev_path);
+                    eprintln!("[INFO] Found target Glitch R5U interface 2 at {:?}", dev_path);
                     return Some(dev_path);
                 }
             }
@@ -163,6 +163,6 @@ pub fn find_device_path() -> Option<PathBuf> {
         return fallback;
     }
 
-    eprintln!("[WARN] No Attack Shark R5 Ultra device found in sysfs.");
+    eprintln!("[WARN] No Glitch R5U / Attack Shark R5 device found in sysfs.");
     None
 }

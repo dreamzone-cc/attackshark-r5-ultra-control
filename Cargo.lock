@@ -454,19 +454,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "attackshark-r5-ultra-control"
-version = "1.0.0"
-dependencies = [
- "image",
- "ksni",
- "libc",
- "serde",
- "serde_json",
- "slint",
- "slint-build",
-]
-
-[[package]]
 name = "auto_enums"
 version = "0.8.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1646,6 +1633,19 @@ dependencies = [
  "khronos_api",
  "log",
  "xml-rs",
+]
+
+[[package]]
+name = "glitch-r5u"
+version = "1.1.0"
+dependencies = [
+ "image",
+ "ksni",
+ "libc",
+ "serde",
+ "serde_json",
+ "slint",
+ "slint-build",
 ]
 
 [[package]]
