@@ -4,6 +4,7 @@ mod autostart;
 mod config;
 mod device;
 mod protocol;
+mod single_instance;
 mod tray;
 
 use config::{load_config, save_config, AppConfig};
@@ -85,10 +86,27 @@ fn sync_state_from_ui(ui: &AppWindow, state: &mut DeviceState) {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // 1. Single-Instance Check via Unix Socket
+    let instance_check = single_instance::check_or_become_primary();
+    let listener = match instance_check {
+        single_instance::InstanceCheck::Primary(l) => l,
+        single_instance::InstanceCheck::AlreadyRunning => {
+            return Ok(());
+        }
+    };
+
     eprintln!("[INFO] Initializing Attack Shark R5 Ultra Control Center...");
 
     let main_window = AppWindow::new()?;
     let ui_weak = main_window.as_weak();
+
+    // 2. Spawn Single-Instance IPC Listener (brings window to front if launched again)
+    let ui_weak_ipc = ui_weak.clone();
+    single_instance::spawn_ipc_server(listener, move || {
+        let _ = ui_weak_ipc.upgrade_in_event_loop(|ui| {
+            let _ = ui.show();
+        });
+    });
 
     // Prevent close from destroying window, just hide
     let ui_weak_close = ui_weak.clone();
