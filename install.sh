@@ -82,7 +82,7 @@ cp -f resources/icon.png "$HOME/.local/share/icons/hicolor/256x256/apps/attacksh
 
 mkdir -p "$HOME/.local/share/applications" "$HOME/.config/autostart"
 cp -f glitch-r5u.desktop "$HOME/.local/share/applications/glitch-r5u.desktop"
-cp -f glitch-r5u.desktop "$HOME/.config/autostart/glitch-r5u.desktop"
+sed "s|^Exec=.*|Exec=$INSTALL_BIN --daemon|" glitch-r5u.desktop > "$HOME/.config/autostart/glitch-r5u.desktop"
 
 # Clean legacy autostart desktop file
 rm -f "$HOME/.config/autostart/attackshark-control.desktop"

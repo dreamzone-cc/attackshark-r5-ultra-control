@@ -18,13 +18,17 @@ pub enum InstanceCheck {
     AlreadyRunning,
 }
 
-pub fn check_or_become_primary() -> InstanceCheck {
+pub fn check_or_become_primary(is_daemon: bool) -> InstanceCheck {
     let path = socket_path();
 
     // 1. Try connecting to an existing active socket
     if let Ok(mut stream) = UnixStream::connect(&path) {
-        let _ = stream.write_all(b"SHOW\n");
-        eprintln!("[INFO] Another instance is already running. Signaled existing instance to focus/show. Exiting cleanly.");
+        if !is_daemon {
+            let _ = stream.write_all(b"SHOW\n");
+            eprintln!("[INFO] Another instance is already running. Signaled existing instance to focus/show. Exiting cleanly.");
+        } else {
+            eprintln!("[INFO] Another instance is already running. Daemon check exiting cleanly.");
+        }
         return InstanceCheck::AlreadyRunning;
     }
 

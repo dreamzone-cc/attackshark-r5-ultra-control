@@ -87,8 +87,11 @@ fn sync_state_from_ui(ui: &AppWindow, state: &mut DeviceState) {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let args: Vec<String> = std::env::args().collect();
+    let is_daemon = args.iter().any(|a| a == "--daemon" || a == "--tray" || a == "--minimized" || a == "-d");
+
     // 1. Single-Instance Check via Unix Socket
-    let instance_check = single_instance::check_or_become_primary();
+    let instance_check = single_instance::check_or_become_primary(is_daemon);
     let listener = match instance_check {
         single_instance::InstanceCheck::Primary(l) => l,
         single_instance::InstanceCheck::AlreadyRunning => {
@@ -569,8 +572,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         },
     );
 
-    // Initial show
-    main_window.show()?;
+    // Initial show (only if not started in background daemon/tray mode)
+    if !is_daemon {
+        main_window.show()?;
+    }
 
     eprintln!("[INFO] Running Slint event loop until quit...");
     slint::run_event_loop_until_quit()?;

@@ -45,7 +45,7 @@ pub fn set_enabled(enable: bool) -> std::io::Result<()> {
              Name=Glitch R5U\n\
              GenericName=Gaming Mouse Utility\n\
              Comment=Glitch R5U Linux Control Suite for Attack Shark R5 Ultra Mouse\n\
-             Exec={}\n\
+             Exec={} --daemon\n\
              Icon=glitch-r5u\n\
              Terminal=false\n\
              Categories=Utility;HardwareSettings;\n\

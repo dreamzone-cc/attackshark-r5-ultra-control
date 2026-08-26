@@ -4,8 +4,8 @@ After=graphical-session.target default.target
 PartOf=graphical-session.target
 
 [Service]
-ExecStart=/home/ggonlinux/.local/bin/glitch-r5u
-Restart=always
+ExecStart=/home/ggonlinux/.local/bin/glitch-r5u --daemon
+Restart=on-failure
 RestartSec=3
 
 [Install]
